@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from django.http import HttpResponse
+from libs.captcha.captcha import captcha
+from django_redis import get_redis_connection
 
-
+from . import constants
 # Create your views here.
 
 
@@ -11,11 +13,15 @@ class ImageCodeView(APIView):
     """提供图片验证码"""
 
     def get(self, request, image_code_id):
-        # 生成图片验证码
+        # 生成图片验证码:text存储到redis数据库；image响应到用户
+        text, image = captcha.generate_captcha()
 
         # 存储图片验证码的内容
+        redis_conn = get_redis_connection('verify_codes')
+        # 保存图片验证码内容到redis数据库：key expires value
+        redis_conn.setex('img_%s'%image_code_id, constants.IMAGE_CODE_REDIS_EXPIRES, text)
 
         # 响应图片验证码图片数据
-        return HttpResponse('image', content_type='image/jpg')
+        return HttpResponse(image, content_type='image/jpg')
 
 
