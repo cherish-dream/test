@@ -14,6 +14,14 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# print(BASE_DIR)
+
+# 追加导包路径
+import sys
+
+# sys.path == ['','项目根路径BASE_DIR','其他导包目录',...]
+sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
+# print(sys.path)
 
 
 # Quick-start development settings - unsuitable for production
@@ -38,6 +46,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework', # DRF
+    'users.apps.UsersConfig', # 注册用户模块应用
 ]
 
 MIDDLEWARE = [
@@ -185,3 +194,12 @@ LOGGING = {
         },
     }
 }
+
+# 配置DRF
+REST_FRAMEWORK = {
+    # 异常处理
+    'EXCEPTION_HANDLER': 'meiduo_mall.utils.exceptions.exception_handler',
+}
+
+# 指定本项目用户认证模型类是谁
+AUTH_USER_MODEL = 'users.User'
