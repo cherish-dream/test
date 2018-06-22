@@ -1,6 +1,7 @@
 # celery启动入口
 from celery import Celery
 
+
 # 创建celery客户端,并起别名（没有实际意义）
 celery_app = Celery('meiduo')
 
