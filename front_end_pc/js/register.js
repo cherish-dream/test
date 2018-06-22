@@ -24,8 +24,8 @@ var vm = new Vue({ // 创建vue实例
 		sms_code_tip: '获取短信验证码', // 获取短信验证码提示文字
 		error_image_code_message: '', // 图片验证码错误提示信息
 		error_name_message: '', // 用户名输入框错误提示
-		error_phone_message: '' // 手机号错误提示
-
+		error_phone_message: '', // 手机号错误提示
+		error_sms_code_message: '' // 短信验证阿妈错误提示
 
 	},
 	mounted: function() { // 文档加载完之后调用方法的
@@ -197,13 +197,42 @@ var vm = new Vue({ // 创建vue实例
                 })
         },
 		// 注册
-		on_submit: function(){
-			this.check_username();
-			this.check_pwd();
-			this.check_cpwd();
-			this.check_phone();
-			this.check_sms_code();
-			this.check_allow();
-		}
+        on_submit: function(){
+            this.check_username();
+            this.check_pwd();
+            this.check_cpwd();
+            this.check_phone();
+            this.check_sms_code();
+            this.check_allow();
+
+            if(this.error_name == false && this.error_password == false && this.error_check_password == false
+                && this.error_phone == false && this.error_sms_code == false && this.error_allow == false) {
+                axios.post(this.host + '/users/', {
+                        username: this.username,
+                        password: this.password,
+                        password2: this.password2,
+                        mobile: this.mobile,
+                        sms_code: this.sms_code,
+                        allow: this.allow.toString()
+                    }, {
+                        responseType: 'json'
+                    })
+                    .then(response => {
+                        location.href = '/index.html';
+                    })
+                    .catch(error=> {
+                        if (error.response.status == 400) {
+                            if ('non_field_errors' in error.response.data) {
+                                this.error_sms_code_message = error.response.data.non_field_errors[0];
+                            } else {
+                                this.error_sms_code_message = '数据有误';
+                            }
+                            this.error_sms_code = true;
+                        } else {
+                            console.log(error.response.data);
+                        }
+                    })
+            }
+        }
 	}
 });

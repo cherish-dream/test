@@ -2,9 +2,19 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from users.models import User
 from rest_framework.response import Response
+from rest_framework.generics import CreateAPIView, GenericAPIView
+from rest_framework.mixins import CreateModelMixin
 
-
+from . import serializers
 # Create your views here.
+
+
+# url(r'^users/$', views.UserView.as_view()),
+# class UserView(GenericAPIView, CreateModelMixin):
+class UserView(CreateAPIView):
+    """注册"""
+
+    serializer_class = serializers.CreateUserSerializer
 
 
 # url(r'^mobiles/(?P<mobile>1[3-9]\d{9})/count/$', views.MobileCountView.as_view()),
