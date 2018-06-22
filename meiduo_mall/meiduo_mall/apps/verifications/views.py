@@ -10,6 +10,7 @@ import random
 from . import constants
 from libs.yuntongxun.sms import CCP
 from . import serializers
+from celery_tasks.sms.tasks import send_sms_code
 # Create your views here.
 
 
@@ -43,12 +44,15 @@ class SMSCodeView(GenericAPIView):
         pl.setex('sms_%s' % mobile, constants.SMS_CODE_REDIS_EXPIRES, sms_code)
 
         # 记录发送短信的标记
-        pl.setex('sned_flag_%s' % mobile, constants.SMS_CODE_REDIS_INTERVAL, 1)
+        pl.setex('send_flag_%s' % mobile, constants.SMS_CODE_REDIS_INTERVAL, 1)
         # 开启执行
         pl.execute()
 
         # 发送短信验证码
-        CCP().send_template_sms(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES // 60], constants.SMS_SEND_TEMPLATE_ID)
+        # CCP().send_template_sms(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES // 60], constants.SMS_SEND_TEMPLATE_ID)
+
+        # 执行异步任务:delay将延迟异步任务发送到redis
+        send_sms_code.delay(mobile, sms_code)
 
         # 响应json给vue,所以需要是json数据格式，进而选择Response
         return Response({'message':'OK'})

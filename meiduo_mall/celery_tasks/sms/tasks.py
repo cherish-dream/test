@@ -4,7 +4,7 @@ from celery_tasks.main import celery_app
 
 
 # 使用装饰器将send_sms_code装饰成异步任务，并起别名
-@celery_app.task('send_sms_code')
+@celery_app.task(name='send_sms_code')
 def send_sms_code(mobile, sms_code):
     """发送短信异步任务"""
 

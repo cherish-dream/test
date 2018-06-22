@@ -47,7 +47,7 @@ class ImageCodeCheckSerializer(serializers.Serializer):
         # 校验60s内是否重复发送短信
         # 学习如何在序列化器中获取请求传入到视图中的额外的数据
         mobile = self.context['view'].kwargs['mobile']
-        send_flag = redis_conn.get('sned_flag_%s' % mobile)
+        send_flag = redis_conn.get('send_flag_%s' % mobile)
         if send_flag:
             raise serializers.ValidationError('发送短信验证码过于频繁')
 

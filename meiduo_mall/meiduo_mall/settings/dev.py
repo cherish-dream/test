@@ -21,7 +21,7 @@ import sys
 
 # sys.path == ['','项目根路径BASE_DIR','其他导包目录',...]
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
-# print(sys.path)
+print(sys.path)
 
 
 # Quick-start development settings - unsuitable for production
