@@ -1,6 +1,11 @@
 from rest_framework import serializers
 from django_redis import get_redis_connection
+from redis import RedisError
+import logging
 
+
+# 日志记录器
+logger = logging.getLogger('django')
 
 
 class ImageCodeCheckSerializer(serializers.Serializer):
@@ -23,11 +28,21 @@ class ImageCodeCheckSerializer(serializers.Serializer):
         if image_code_server is None:
             raise serializers.ValidationError('无效的图片验证码')
 
+        # 删除Redis中存储的图片验证码，防止暴力测试
+        # 提示：如果不在这里捕获异常，会被DRF捕获到，然后直接returnn,那么后续的对比逻辑无法正常执行
+        # 提示：自己捕获异常的原因为，删除图片验证码是附带的逻辑，删除是否成功不重要，不能让他的异常影响了主线逻辑
+        try:
+            redis_conn.delete('img_%s' % image_code_id)
+        except RedisError as e:
+            logger.error(e)
+
         # 使用text和服务器存储的image_code_server进行对比
         image_code_server = image_code_server.decode() # 因为py3中redis数据库读取的数据类型是bytes；py2读取的是原始数据
         # 执行对比：需要同步大小写
         if text.lower() != image_code_server.lower():
             raise serializers.ValidationError('输入图片验证码有误')
+
+        # 不能在这里删除Redis中存储的图片验证码，因为如果每次对比失败，就会无法删除
 
         # 校验60s内是否重复发送短信
         # 学习如何在序列化器中获取请求传入到视图中的额外的数据
