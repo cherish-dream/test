@@ -5,8 +5,10 @@ from libs.captcha.captcha import captcha
 from django_redis import get_redis_connection
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
+import random
 
 from . import constants
+from libs.yuntongxun.sms import CCP
 # Create your views here.
 
 
@@ -19,10 +21,14 @@ class SMSCodeView(APIView):
         # 校验参数（暂时不做）
 
         # 生成短信验证码
+        sms_code = '%06d' % random.randint(0, 999999)
 
         # 存储短信验证码到redis
+        redis_conn = get_redis_connection('verify_codes')
+        redis_conn.setex('sms_%s' % mobile, constants.SMS_CODE_REDIS_EXPIRES, sms_code)
 
         # 发送短信验证码
+        CCP().send_template_sms(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES // 60], constants.SMS_SEND_TEMPLATE_ID)
 
         # 响应json给vue,所以需要是json数据格式，进而选择Response
         return Response({'message':'OK'})
