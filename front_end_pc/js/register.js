@@ -1,6 +1,7 @@
 var vm = new Vue({ // 创建vue实例
 	el: '#app',    // 绑定vue
 	data: {	// 定义要使用的变量
+		host,
 		error_name: false,
 		error_password: false,
 		error_check_password: false,
@@ -47,8 +48,9 @@ var vm = new Vue({ // 创建vue实例
 			// 生成uuid==image_code_id
 			this.image_code_id = this.generate_uuid();
 			// 拼接获取图片验证码的url，赋值给img标签的src属性
-			this.image_code_url = 'http://127.0.0.1:8000' + '/image_codes/' + this.image_code_id + '/';
-        },
+			// this.image_code_url = 'http://127.0.0.1:8000' + '/image_codes/' + this.image_code_id + '/';
+        	this.image_code_url = this.host + '/image_codes/' + this.image_code_id + '/';
+		},
 
 		check_username: function (){
 			var len = this.username.length;
@@ -119,7 +121,7 @@ var vm = new Vue({ // 创建vue实例
             }
 
             // 向后端接口发送请求，让后端发送短信验证码
-            axios.get('http://127.0.0.1:8000' + '/sms_codes/' + this.mobile + '/?text=' + this.image_code+'&image_code_id='+ this.image_code_id, {
+            axios.get(this.host + '/sms_codes/' + this.mobile + '/?text=' + this.image_code+'&image_code_id='+ this.image_code_id, {
                     responseType: 'json' // 告诉后端响应数据需要是json的
                 })
                 .then(response => {
