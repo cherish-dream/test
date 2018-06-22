@@ -22,7 +22,11 @@ var vm = new Vue({ // 创建vue实例
 		image_code_url: '', // img标签获取图片验证码的url
 		sending_flag: false, // 避免重复点击发送短信验证码标签
 		sms_code_tip: '获取短信验证码', // 获取短信验证码提示文字
-		error_image_code_message: '' // 图片验证码错误提示信息
+		error_image_code_message: '', // 图片验证码错误提示信息
+		error_name_message: '', // 用户名输入框错误提示
+		error_phone_message: '' // 手机号错误提示
+
+
 	},
 	mounted: function() { // 文档加载完之后调用方法的
 		// 当文档加载完就自动的获取图片验证码
@@ -52,14 +56,33 @@ var vm = new Vue({ // 创建vue实例
         	this.image_code_url = this.host + '/image_codes/' + this.image_code_id + '/';
 		},
 
+		// 检查用户名
 		check_username: function (){
-			var len = this.username.length;
-			if(len<5||len>20) {
-				this.error_name = true;
-			} else {
-				this.error_name = false;
-			}
-		},
+            var len = this.username.length;
+            if(len<5||len>20) {
+                this.error_name_message = '请输入5-20个字符的用户名';
+                this.error_name = true;
+            } else {
+                this.error_name = false;
+            }
+            // 检查重名
+            if (this.error_name == false) {
+                axios.get(this.host + '/usernames/' + this.username + '/count/', {
+                        responseType: 'json'
+                    })
+                    .then(response => {
+                        if (response.data.count > 0) {
+                            this.error_name_message = '用户名已存在';
+                            this.error_name = true;
+                        } else {
+                            this.error_name = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error.response.data);
+                    })
+            }
+        },
 		check_pwd: function (){
 			var len = this.password.length;
 			if(len<8||len>20){
@@ -75,14 +98,32 @@ var vm = new Vue({ // 创建vue实例
 				this.error_check_password = false;
 			}		
 		},
+		// 检查手机号
 		check_phone: function (){
-			var re = /^1[345789]\d{9}$/;
-			if(re.test(this.mobile)) {
-				this.error_phone = false;
-			} else {
-				this.error_phone = true;
-			}
-		},
+            var re = /^1[345789]\d{9}$/;
+            if(re.test(this.mobile)) {
+                this.error_phone = false;
+            } else {
+                this.error_phone_message = '您输入的手机号格式不正确';
+                this.error_phone = true;
+            }
+            if (this.error_phone == false) {
+                axios.get(this.host + '/mobiles/'+ this.mobile + '/count/', {
+                        responseType: 'json'
+                    })
+                    .then(response => {
+                        if (response.data.count > 0) {
+                            this.error_phone_message = '手机号已存在';
+                            this.error_phone = true;
+                        } else {
+                            this.error_phone = false;
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error.response.data);
+                    })
+            }
+        },
 		check_image_code: function (){
 			if(!this.image_code) {
 				this.error_image_code = true;
