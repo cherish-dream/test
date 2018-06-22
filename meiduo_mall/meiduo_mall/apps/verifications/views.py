@@ -35,6 +35,9 @@ class SMSCodeView(GenericAPIView):
         redis_conn = get_redis_connection('verify_codes')
         redis_conn.setex('sms_%s' % mobile, constants.SMS_CODE_REDIS_EXPIRES, sms_code)
 
+        # 记录发送短信的标记
+        redis_conn.setex('sned_flag_%s' % mobile, constants.SMS_CODE_REDIS_INTERVAL , 1)
+
         # 发送短信验证码
         CCP().send_template_sms(mobile, [sms_code, constants.SMS_CODE_REDIS_EXPIRES // 60], constants.SMS_SEND_TEMPLATE_ID)
 

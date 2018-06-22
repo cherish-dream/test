@@ -29,4 +29,11 @@ class ImageCodeCheckSerializer(serializers.Serializer):
         if text.lower() != image_code_server.lower():
             raise serializers.ValidationError('输入图片验证码有误')
 
+        # 校验60s内是否重复发送短信
+        # 学习如何在序列化器中获取请求传入到视图中的额外的数据
+        mobile = self.context['view'].kwargs['mobile']
+        send_flag = redis_conn.get('sned_flag_%s' % mobile)
+        if send_flag:
+            raise serializers.ValidationError('发送短信验证码过于频繁')
+
         return attrs
