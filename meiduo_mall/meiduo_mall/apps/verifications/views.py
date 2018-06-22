@@ -9,16 +9,24 @@ import random
 
 from . import constants
 from libs.yuntongxun.sms import CCP
+from . import serializers
 # Create your views here.
 
 
 # url('^sms_codes/(?P<mobile>1[3-9]\d{9})/$', views.SMSCodeView.as_view()),
-class SMSCodeView(APIView):
+class SMSCodeView(GenericAPIView):
     """发送短信验证码"""
 
+    # 指定序列化器
+    serializer_class = serializers.ImageCodeCheckSerializer
+
     def get(self, request, mobile):
-        # 接受参数（暂时不做）
-        # 校验参数（暂时不做）
+        # DRF实现参数的校验+校验图片验证码
+
+        # 获取序列化器对象:需要将text和image_code_id这两个查询字符串传入到序列化器对象中进行校验
+        serializer = self.get_serializer(data=request.query_params)
+        # 开启校验
+        serializer.is_valid(raise_exception=True)
 
         # 生成短信验证码
         sms_code = '%06d' % random.randint(0, 999999)
