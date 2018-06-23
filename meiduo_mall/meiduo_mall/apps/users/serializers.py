@@ -2,6 +2,7 @@ from rest_framework import serializers
 from users.models import User
 import re
 from django_redis import get_redis_connection
+from rest_framework_jwt.settings import api_settings
 
 
 class CreateUserSerializer(serializers.ModelSerializer):
@@ -13,12 +14,15 @@ class CreateUserSerializer(serializers.ModelSerializer):
     sms_code = serializers.CharField(label='短信验证码', write_only=True)
     allow = serializers.CharField(label='同意协议', write_only=True)
 
+    # 输出
+    token = serializers.CharField(label='登录状态token', read_only=True)  # 增加token字段
+
     class Meta:
         model = User
         # 指定要校验的字段
         # password2 sms_code allow 只负责输入
         # id username password mobile 可以负责输出
-        fields = ('id', 'username', 'password', 'password2', 'sms_code', 'mobile', 'allow')
+        fields = ('id', 'username', 'password', 'password2', 'sms_code', 'mobile', 'allow', 'token')
         # 对模型中没有直接进行校验的字段，进行再校验
         extra_kwargs = {
             'username': {
@@ -81,5 +85,15 @@ class CreateUserSerializer(serializers.ModelSerializer):
         # 调用django的认证系统加密密码
         user.set_password(validated_data['password'])
         user.save()
+
+        # 生成JWT——token:在校验通过，保存完user数据之后，响应user之前，生成token,并响应到浏览器
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+        payload = jwt_payload_handler(user)
+        token = jwt_encode_handler(payload)
+
+        # 将token绑定到user
+        user.token = token
 
         return user

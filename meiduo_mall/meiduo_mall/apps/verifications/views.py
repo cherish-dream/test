@@ -6,12 +6,17 @@ from django_redis import get_redis_connection
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 import random
+import logging
 
 from . import constants
 from meiduo_mall.libs.yuntongxun.sms import CCP
 from . import serializers
 from celery_tasks.sms.tasks import send_sms_code
 # Create your views here.
+
+
+# 日志记录器
+logger = logging.getLogger('django')
 
 
 # url('^sms_codes/(?P<mobile>1[3-9]\d{9})/$', views.SMSCodeView.as_view()),
@@ -31,6 +36,8 @@ class SMSCodeView(GenericAPIView):
 
         # 生成短信验证码
         sms_code = '%06d' % random.randint(0, 999999)
+        logger.debug(sms_code)
+
 
         # 存储短信验证码到redis
         redis_conn = get_redis_connection('verify_codes')

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 
 import os
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
     'corsheaders', # cors
     'rest_framework', # DRF
     'users.apps.UsersConfig', # 注册用户模块应用
+    'verifications.apps.VerificationsConfig', # 验证
 
 ]
 
@@ -211,7 +213,21 @@ LOGGING = {
 REST_FRAMEWORK = {
     # 异常处理
     'EXCEPTION_HANDLER': 'meiduo_mall.utils.exceptions.exception_handler',
+
+    # 集成JWT验证机制
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
 }
+
+
+JWT_AUTH = {
+    # JWT —— token 的有效期:一天
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+}
+
 
 # 指定本项目用户认证模型类是谁
 AUTH_USER_MODEL = 'users.User'
