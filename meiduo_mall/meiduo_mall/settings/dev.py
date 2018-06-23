@@ -235,6 +235,12 @@ JWT_AUTH = {
 # 指定本项目用户认证模型类是谁
 AUTH_USER_MODEL = 'users.User'
 
+
+# 配置用户登录认证后端
+AUTHENTICATION_BACKENDS = [
+    'users.utils.UsernameMobileAuthBackend',
+]
+
 # CORS
 CORS_ORIGIN_WHITELIST = (
     '127.0.0.1:8080',
