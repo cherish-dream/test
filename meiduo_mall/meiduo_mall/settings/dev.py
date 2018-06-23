@@ -226,6 +226,9 @@ REST_FRAMEWORK = {
 JWT_AUTH = {
     # JWT —— token 的有效期:一天
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+
+    # 扩展JWT响应字段
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.jwt_response_payload_handler',
 }
 
 
