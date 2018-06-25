@@ -25,7 +25,7 @@ class QQAuthUserView(APIView):
         access_token = oauth.get_access_token(code)
 
         # 使用access_token向QQ服务器请求openid
-        # openid = oauth.get_openid(access_token)
+        openid = oauth.get_openid(access_token)
 
 
         # 使用openid查询该QQ用户是否在美多商城中绑定过用户

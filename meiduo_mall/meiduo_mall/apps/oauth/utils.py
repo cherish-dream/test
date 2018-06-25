@@ -1,6 +1,7 @@
 from django.conf import settings
 from urllib.parse import urlencode,parse_qs
 from urllib.request import urlopen
+import json
 
 from .exceptions import QQAPIException
 
@@ -75,6 +76,37 @@ class OAuthQQ(object):
             raise QQAPIException('获取access_token失败')
 
         return access_token
+
+
+    def get_openid(self, access_token):
+        """
+        使用access_token向QQ服务器请求openid
+        openid 是我们、用户在注册个人QQ账号时，QQ服务器给分配的用户的唯一标识
+        :param access_token: 上一步获取的access_token
+        :return: open_id
+        """
+
+        # 准备url
+        url = 'https://graph.qq.com/oauth2.0/me?access_token=' + access_token
+
+        # 美多向QQ服务器发送请求获取openid
+        response_str = ''
+        try:
+            response = urlopen(url)
+            response_str = response.read().decode()
+
+            # 返回的数据 callback( {"client_id":"YOUR_APPID","openid":"YOUR_OPENID"} )\n;
+            response_dict = json.loads(response_str[10:-4])
+            # 获取openid
+            openid = response_dict.get('openid')
+        except Exception as e:
+            # 如果有异常，QQ服务器返回 "code=xxx&msg=xxx"
+            data = parse_qs(response_str)
+            logger.error(e)
+            raise QQAPIException('code=%s msg=%s' % (data.get('code'), data.get('msg')))
+
+        return openid
+
 
 
 
