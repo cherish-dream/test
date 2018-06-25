@@ -2,8 +2,10 @@ from django.conf import settings
 from urllib.parse import urlencode,parse_qs
 from urllib.request import urlopen
 import json
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, BadData
 
 from .exceptions import QQAPIException
+from . import constants
 
 
 import logging
@@ -107,6 +109,34 @@ class OAuthQQ(object):
 
         return openid
 
+
+    @staticmethod
+    def generate_save_user_token(openid):
+        """
+        生成保存用户数据的token
+        :param openid: 用户的openid
+        :return: token
+        """
+        serializer = Serializer(settings.SECRET_KEY, expires_in=constants.SAVE_QQ_USER_TOKEN_EXPIRES)
+        data = {'openid': openid}
+        token = serializer.dumps(data)
+        return token.decode()
+
+
+    @staticmethod
+    def check_save_user_token(token):
+        """
+        检验保存用户数据的token
+        :param token: token
+        :return: openid or None
+        """
+        serializer = Serializer(settings.SECRET_KEY, expires_in=constants.SAVE_QQ_USER_TOKEN_EXPIRES)
+        try:
+            data = serializer.loads(token)
+        except BadData:
+            return None
+        else:
+            return data.get('openid')
 
 
 
