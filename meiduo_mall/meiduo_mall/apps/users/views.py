@@ -2,11 +2,24 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from users.models import User
 from rest_framework.response import Response
-from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 
 from . import serializers
 # Create your views here.
+
+
+# url(r'^email/$', views.EmailView.as_view()),
+class EmailView(UpdateAPIView):
+    """添加邮件的后端"""
+
+    # 指定序列化器
+    serializer_class = serializers.EmailSerializer
+    # 验证用户是否登录
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        return self.request.user
 
 
 # url(r'^user/$', views.UserDetailView.as_view()),
