@@ -38,7 +38,7 @@ class QQAuthUserView(APIView):
             oauth_user = OAuthQQUser.objects.get(openid=openid)
         except OAuthQQUser.DoesNotExist:
             # 如果openid没绑定美多商城用户，创建用户并绑定到openid
-
+            pass
         else:
             # 如果openid已绑定美多商城用户，直接生成JWT token，并返回
             user = oauth_user.user
