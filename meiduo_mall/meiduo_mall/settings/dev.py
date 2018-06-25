@@ -22,7 +22,7 @@ import sys
 
 # sys.path == ['','项目根路径BASE_DIR','其他导包目录',...]
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
-print(sys.path)
+# print(sys.path)
 
 
 # Quick-start development settings - unsuitable for production
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'rest_framework', # DRF
     'users.apps.UsersConfig', # 注册用户模块应用
     'verifications.apps.VerificationsConfig', # 验证
+    'oauth.apps.OauthConfig', # QQ登录
 
 ]
 

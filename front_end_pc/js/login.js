@@ -64,7 +64,7 @@ var vm = new Vue({
                             sessionStorage.username = response.data.username;
                         }
 
-                        // 跳转页面
+                        // 跳转页面：根据next是否存在，实现登陆后是否跳转到next.实现从哪儿来到登录界面回到哪儿
                         var return_url = this.get_query_string('next');
                         if (!return_url) {
                             return_url = '/index.html';
