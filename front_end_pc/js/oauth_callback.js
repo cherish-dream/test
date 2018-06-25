@@ -38,6 +38,7 @@ var vm = new Vue({
                     localStorage.user_id = response.data.user_id;
                     localStorage.username = response.data.username;
                     localStorage.token = response.data.token;
+
                     var state = this.get_query_string('state');
                     location.href = state;
                 } else {
