@@ -5,6 +5,14 @@ from django_redis import get_redis_connection
 from rest_framework_jwt.settings import api_settings
 
 
+class UserDetailSerializer(serializers.ModelSerializer):
+    """用户详细信息序列化器"""
+    class Meta:
+        model = User
+        # 只有字段的输出，没有输入
+        fields = ('id', 'username', 'mobile', 'email', 'email_active')
+
+
 class CreateUserSerializer(serializers.ModelSerializer):
     """
     创建用户序列化器

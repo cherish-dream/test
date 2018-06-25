@@ -2,11 +2,29 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from users.models import User
 from rest_framework.response import Response
-from rest_framework.generics import CreateAPIView, GenericAPIView
-from rest_framework.mixins import CreateModelMixin
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
+from rest_framework.permissions import IsAuthenticated
 
 from . import serializers
 # Create your views here.
+
+
+# url(r'^user/$', views.UserDetailView.as_view()),
+class UserDetailView(RetrieveAPIView):
+    """提供登录用户的详情信息"""
+
+    # 指定序列化器
+    serializer_class = serializers.UserDetailSerializer
+
+    # 验证当前是否是登录状态
+    # IsAuthenticated : 会根据DRF配置的身份验证系统进行身份的验证，判断是否是登录的状态
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        """返回当前登录用户的信息
+        能够通过permission_classes的验证，说明是登录用户在访问视图
+        """
+        return self.request.user
 
 
 # url(r'^users/$', views.UserView.as_view()),
