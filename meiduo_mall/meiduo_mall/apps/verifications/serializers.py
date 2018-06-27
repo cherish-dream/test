@@ -12,8 +12,8 @@ class ImageCodeCheckSerializer(serializers.Serializer):
     """校验图片验证码序列化器"""
 
     # 指定要校验的字段: (字段名字)image_code_id 必须和外界传入(data=request.query_params)的同名:
-    image_code_id = serializers.UUIDField()
-    text = serializers.CharField(min_length=4,max_length=4)
+    # image_code_id = serializers.UUIDField()
+    # text = serializers.CharField(min_length=4,max_length=4)
 
     def validate(self, attrs):
         """对比图片验证码"""

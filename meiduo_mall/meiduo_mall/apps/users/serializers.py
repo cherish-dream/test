@@ -4,6 +4,8 @@ import re
 from django_redis import get_redis_connection
 from rest_framework_jwt.settings import api_settings
 
+from celery_tasks.email.tasks import send_verify_email
+
 
 class EmailSerializer(serializers.ModelSerializer):
     """
@@ -21,6 +23,13 @@ class EmailSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.email = validated_data['email']
         instance.save()
+
+        # 生成verify_url
+        verify_url = instance.generate_verify_email_url()
+
+        # 在响应结果之前，异步发送邮件给用户
+        send_verify_email.delay(instance.email, verify_url)
+
         return instance
 
 
@@ -107,6 +116,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         del validated_data['password2']
         del validated_data['sms_code']
         del validated_data['allow']
+
         user = super().create(validated_data)
 
         # 调用django的认证系统加密密码
