@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig', # 注册用户模块应用
     'verifications.apps.VerificationsConfig', # 验证
     'oauth.apps.OauthConfig', # QQ登录
+    'areas.apps.AreasConfig', # 省市区
 
 ]
 
