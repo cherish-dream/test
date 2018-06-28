@@ -10,7 +10,6 @@ from . import serializers
 # Create your views here.
 
 
-
 # url(r'^emails/verification/$', views.VerifyEmailView.as_view()),
 class VerifyEmailView(APIView):
     """邮件验证"""
