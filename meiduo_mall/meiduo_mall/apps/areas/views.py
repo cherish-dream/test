@@ -6,7 +6,8 @@ from .models import Area
 from . import serializers
 # Create your views here.
 
-
+# GET /areas/
+# GET /areas/<pk>/
 class AreasViewSet(CacheResponseMixin, ReadOnlyModelViewSet):
     """提供省市区三级联动的数据
     list:返回列表数据（省级数据）
