@@ -47,12 +47,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'corsheaders', # cors
     'rest_framework', # DRF
+    'ckeditor',  # 富文本编辑器
+    'ckeditor_uploader',  # 富文本编辑器上传图片模块
+
     'users.apps.UsersConfig', # 注册用户模块应用
     'verifications.apps.VerificationsConfig', # 验证
     'oauth.apps.OauthConfig', # QQ登录
     'areas.apps.AreasConfig', # 省市区
+    'contents.apps.ContentsConfig', # 主页广告内容
+    'goods.apps.GoodsConfig', # 商品
 
 ]
 
@@ -280,3 +286,17 @@ REST_FRAMEWORK_EXTENSIONS = {
 # 配置FastDFS文件存储系统
 FDFS_CLIENT_CONF = 'meiduo_mall/utils/fastdfs/client.conf'
 FDFS_BASE_URL = 'http://192.168.103.132:8888/'
+
+# 指定默认的文件存储系统
+DEFAULT_FILE_STORAGE = 'meiduo_mall.utils.fastdfs.fdfs_storage.FastDFSStorage'
+
+
+# 富文本编辑器ckeditor配置
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',  # 工具条功能
+        'height': 300,  # 编辑器高度
+        # 'width': 300,  # 编辑器宽
+    },
+}
+CKEDITOR_UPLOAD_PATH = ''  # 上传图片保存路径，使用了FastDFS，所以此处设为''
