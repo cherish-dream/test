@@ -275,3 +275,8 @@ REST_FRAMEWORK_EXTENSIONS = {
     # 缓存存储
     'DEFAULT_USE_CACHE': 'default',
 }
+
+
+# 配置FastDFS文件存储系统
+FDFS_CLIENT_CONF = 'meiduo_mall/utils/fastdfs/client.conf'
+FDFS_BASE_URL = 'http://192.168.103.132:8888/'

@@ -1,5 +1,6 @@
 from django.core.files.storage import Storage
 from fdfs_client.client import Fdfs_client
+from django.conf import settings
 
 
 class FastDFSStorage(Storage):
@@ -7,11 +8,13 @@ class FastDFSStorage(Storage):
     将运营上传到django的文件转存到FastDFS服务器中的storage
     """
 
-    def __init__(self):
+    def __init__(self, client_conf=None, base_url=None):
         """重写构造方法
         当django收到上传请求需要存储文件时，自动回调用构造方法，"但是不会传参数"
         """
-        pass
+        self.client_conf = client_conf or settings.FDFS_CLIENT_CONF
+        self.base_url = base_url or settings.FDFS_BASE_URL
+
 
     def _open(name, mode='rb'):
         """存储系统、django打开文件时自动调用的
@@ -27,8 +30,8 @@ class FastDFSStorage(Storage):
         :param content: 要存储的文件的内容File类型的对象，需要调用read()方法，读取文件的二进制信息
         :return: file_id
         """
-        # 创建fdfs客户端
-        client = Fdfs_client('meiduo_mall/utils/fastdfs/client.conf')
+        # 创建fdfs客户端 'meiduo_mall/utils/fastdfs/client.conf'
+        client = Fdfs_client(self.client_conf)
         # 调用上传的方法
         ret = client.upload_by_buffer(content.read())
         # 判断上传是否成功
@@ -55,7 +58,8 @@ class FastDFSStorage(Storage):
         :param name: 要获取全路径地址的文件的名字 
         :return: http://192.168.103.132:8888/group1/M00/00/02/wKhnhFsx-QaAIEByAAC4j90Tziw40.jpeg
         """
-        return 'http://192.168.103.132:8888/' + name
+        # 'http://192.168.103.132:8888/'
+        return self.base_url + name
 
 
 
