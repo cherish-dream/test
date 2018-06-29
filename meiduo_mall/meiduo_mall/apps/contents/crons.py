@@ -77,5 +77,6 @@ def generate_static_index_html():
 
     # 将html文本信息写入到前端的front_end_pc文件中，并命名为index.html
     file_path = os.path.join(settings.GENERATED_STATIC_HTML_FILES_DIR, 'index.html')
-    with open(file_path, 'w') as f:
+    # 第三个参数encoding ： wield辅助解决定时器crontab中文编码的问题
+    with open(file_path, 'w', encoding='utf-8') as f:
         f.write(html_text)

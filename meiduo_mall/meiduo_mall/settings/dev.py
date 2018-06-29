@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'rest_framework', # DRF
     'ckeditor',  # 富文本编辑器
     'ckeditor_uploader',  # 富文本编辑器上传图片模块
+    'django_crontab',  # 定时任务
 
     'users.apps.UsersConfig', # 注册用户模块应用
     'verifications.apps.VerificationsConfig', # 验证
@@ -304,3 +305,13 @@ CKEDITOR_UPLOAD_PATH = ''  # 上传图片保存路径，使用了FastDFS，所�
 
 # 指定静态的主页的存储路径为front_end_pc
 GENERATED_STATIC_HTML_FILES_DIR = os.path.join(os.path.dirname(os.path.dirname(BASE_DIR)), 'front_end_pc')
+
+
+# 定时任务
+CRONJOBS = [
+    # 每2分钟执行一次生成主页静态文件
+    ('*/2 * * * *', 'contents.crons.generate_static_index_html', '>> /Users/zhangjie/Desktop/meiduo_01/meiduo_mall/logs/crontab.log')
+]
+
+# 解决crontab中文问题
+CRONTAB_COMMAND_PREFIX = 'LANG_ALL=zh_cn.UTF-8'
