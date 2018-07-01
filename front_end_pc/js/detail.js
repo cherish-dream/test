@@ -38,6 +38,17 @@ var vm = new Vue({
         // 添加用户浏览历史记录
         this.get_sku_id();
 
+        // 如果用户没有登录就不记录浏览记录信息
+        if (this.user_id) {
+            axios.post(this.host+'/browse_histories/', {
+                sku_id: this.sku_id
+            }, {
+                headers: {
+                    'Authorization': 'JWT ' + this.token
+                }
+            })
+        }
+
         this.get_cart();
         this.get_hot_goods();
         this.get_comments();

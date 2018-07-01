@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from users.models import User
 from rest_framework.response import Response
-from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView, UpdateAPIView, GenericAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, mixins
 from rest_framework.viewsets import GenericViewSet
@@ -10,7 +10,30 @@ from rest_framework.decorators import action
 
 from . import serializers
 from . import constants
+from . import serializers
 # Create your views here.
+
+
+# /browse_histories/
+class UserBrowseHistoryView(mixins.CreateModelMixin, GenericAPIView):
+    """用户浏览记录"""
+
+    # 指定权限
+    permission_classes = [IsAuthenticated]
+    # 指定序列化器：为了将保存也在序列化器中实现，所以加入了CreateModelMixin
+    serializer_class = serializers.AddUserBrowseHistorySerializer
+
+    def post(self, request):
+        # 接受参数sku_id
+        # 校验参数
+        # 保存sku_id
+        # 响应：传入request，内部带有POST请求的请求体
+        return self.create(request)
+
+
+    # def get(self, request):
+    #     """查询用户浏览记录"""
+    #     pass
 
 
 class AddressViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, GenericViewSet):

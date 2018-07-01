@@ -6,6 +6,47 @@ from rest_framework_jwt.settings import api_settings
 
 from celery_tasks.email.tasks import send_verify_email
 from .models import Address
+from goods.models import SKU
+
+
+class AddUserBrowseHistorySerializer(serializers.Serializer):
+    """添加用户浏览记录的序列化器"""
+    # 定义字段sku_id（输入和输出）
+    sku_id = serializers.IntegerField(label='商品SKU编号', min_value=1)
+
+    def validate_sku_id(self, value):
+        """校验sku_id是否在商品的数目范围内"""
+        try:
+            SKU.objects.get(id=value)
+        except SKU.DoesNotExist:
+            raise serializers.ValidationError('sku id 不存在')
+
+        # 如果存在就返回验证后的sku_id
+        return value
+
+    def create(self, validated_data):
+        """将验证后的sku_id保存到redis数据库"""
+        # 获取sku_id
+        sku_id = validated_data['sku_id']
+        # 获取登录用户的user_id
+        user_id = self.context['request'].user.id
+        # 获取连接到redis的对象
+        redis_conn = get_redis_connection('history')
+
+        # 管道:优化数据的访问效率
+        pl = redis_conn.pipeline()
+
+        # 去重
+        pl.lrem('history_%s' % user_id, 0, sku_id)
+        # 存储
+        pl.lpush('history_%s' % user_id, sku_id)
+        # 截取:只截取最前面的五个元素
+        pl.ltrim('history_%s' % user_id, 0, 4)
+
+        # 执行
+        pl.execute()
+
+        return validated_data
 
 
 class UserAddressSerializer(serializers.ModelSerializer):
