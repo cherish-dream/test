@@ -28,4 +28,6 @@ urlpatterns = [
     url(r'^', include('areas.urls')),
     # CKEditor
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
+    # 商品
+    url(r'^', include('goods.urls')),
 ]
