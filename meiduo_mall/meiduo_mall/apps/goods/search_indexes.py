@@ -16,7 +16,7 @@ class SKUIndex(indexes.SearchIndex, indexes.Indexable):
     # 以name作为索引，将来输入商品名字就可以搜索上平
     name = indexes.CharField(model_attr='name')
     # 注意点：indexes.字段的类型；该字段的类型需要跟模型类的属性的类型一致
-    price = indexes.CharField(model_attr='price')
+    price = indexes.DecimalField(model_attr='price')
     default_image_url = indexes.CharField(model_attr='default_image_url')
     comments = indexes.IntegerField(model_attr='comments')
 

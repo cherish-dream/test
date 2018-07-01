@@ -1,10 +1,20 @@
 from django.shortcuts import render
 from rest_framework.generics import ListAPIView
 from rest_framework.filters import OrderingFilter
+from drf_haystack.viewsets import HaystackViewSet
 
 from .models import SKU
-from .serializers import SKUSerializer
+from .serializers import SKUSerializer,SKUIndexSerializer
 # Create your views here.
+
+
+class SKUSearchViewSet(HaystackViewSet):
+    """
+    SKU搜索
+    """
+    index_models = [SKU]
+
+    serializer_class = SKUIndexSerializer
 
 
 # /categories/(?P<category_id>\d+)/skus?page=xxx&page_size=xxx&ordering=xxx
