@@ -7,10 +7,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
+from django_redis import get_redis_connection
 
 from . import serializers
 from . import constants
-from . import serializers
+from goods.models import SKU
+from goods.serializers import SKUSerializer
 # Create your views here.
 
 
@@ -30,10 +32,28 @@ class UserBrowseHistoryView(mixins.CreateModelMixin, GenericAPIView):
         # 响应：传入request，内部带有POST请求的请求体
         return self.create(request)
 
+    def get(self, request):
+        """查询用户浏览记录
+        因为也需要在这个视图中实现用户浏览记录的查询，所以父类没有选择CreateAPIView(只提供post方法)
+        """
+        # 获取user_id
+        user_id = request.user.id
+        # 获取连接都redis的对象
+        redis_conn = get_redis_connection('history')
+        # 查询出所有的sku_id
+        sku_ids = redis_conn.lrange('history_%s' % user_id, 0, -1)
 
-    # def get(self, request):
-    #     """查询用户浏览记录"""
-    #     pass
+        # 遍历所有的sku_id，查询每个sku_id对应的sku对象
+        sku_list = []
+        for sku_id in sku_ids:
+            sku = SKU.objects.get(id=sku_id)
+            sku_list.append(sku)
+
+        # 创建序列化器；将存放了序列化数据的模型对象列表传入到序列化器中序列化，并指定为多个形式
+        serializer_sku = SKUSerializer(sku_list, many=True)
+
+        # 响应sku对象列表:serializer_sku.data == 经过序列化之后的列表数据
+        return Response(serializer_sku.data)
 
 
 class AddressViewSet(mixins.CreateModelMixin, mixins.UpdateModelMixin, GenericViewSet):
