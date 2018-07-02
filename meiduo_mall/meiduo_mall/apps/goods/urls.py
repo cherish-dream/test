@@ -6,6 +6,8 @@ from . import views
 urlpatterns = [
     # 商品列表
     url(r'^categories/(?P<category_id>\d+)/skus/', views.SKUListView.as_view()),
+    # 分类的面包屑导航
+    url(r'^categories/(?P<pk>\d+)/$', views.CategoryView.as_view()),
 ]
 
 
