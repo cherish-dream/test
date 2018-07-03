@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 
+from . import serializers
 # Create your views here.
 
 
@@ -16,6 +17,16 @@ class CartView(APIView):
 
     def post(self, request):
         """新增"""
+        # 使用序列化器校验参数
+        serializer = serializers.CartSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # 读取校验之后的参数
+        sku_id = serializer.validated_data.get('sku_id')
+        count = serializer.validated_data.get('count')
+        selected = serializer.validated_data.get('selected')
+
+
+
         pass
 
 
