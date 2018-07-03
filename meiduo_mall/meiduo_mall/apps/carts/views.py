@@ -51,7 +51,7 @@ class CartView(APIView):
             # 执行
             pl.execute()
             # 响应结果：
-            return Response(serializer.validated_data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
             # 用户未登录,操作cookie
             cart_str = request.COOKIES.get('cart')
@@ -99,7 +99,7 @@ class CartView(APIView):
             cookie_cart_str = base64.b64encode(pickle.dumps(cart_dict)).decode()
 
             # 创建response
-            response = Response(serializer.validated_data, status=status.HTTP_201_CREATED)
+            response = Response(serializer.data, status=status.HTTP_201_CREATED)
             # 写入到cookie
             response.set_cookie('cart', cookie_cart_str)
             return response
@@ -169,7 +169,60 @@ class CartView(APIView):
 
     def put(self, request):
         """修改"""
-        pass
+        # 使用序列化器校验参数
+        serializer = serializers.CartSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # 读取校验之后的参数
+        sku_id = serializer.validated_data.get('sku_id')
+        count = serializer.validated_data.get('count')
+        selected = serializer.validated_data.get('selected')
+
+        # 判断用户是否登录
+        # request.user  会去查询用户的身份信息的。如果为登录就会抛出异常或者指定为匿名用户
+        try:
+            user = request.user
+        except Exception:
+            user = None
+
+        if user is not None and user.is_authenticated:
+            # 用户已登录,操作redis
+            redis_conn = get_redis_connection('carts')
+
+            # 修改商品的数量:因为接口设计幂等的，所以前端传入的数量就是最终的结果，直接覆盖写入
+            redis_conn.hset('cart_%s' % user.id, sku_id, count)
+            # 修改商品是否勾选:如果前端传入的是已勾选，那么由于使用的是幂等的接口设计，所以直接使用selected覆盖
+            if selected:
+                redis_conn.sadd('selected_%s' % user.id, sku_id)
+            else:
+                redis_conn.srem('selected_%s' % user.id, sku_id)
+
+            # 响应结果：修改和获取的状态码是200，新增是201，删除时204
+            return Response(serializer.data)
+        else:
+            # 用户未登录,操作cookie
+            cart_str = request.COOKIES.get('cart')
+            # 判断用户是否在cookie中有购物车数据
+            if cart_str:
+                # 将购物车字符串数据转成字典
+                cart_dict = pickle.loads(base64.b64decode(cart_str.encode()))
+            else:
+                cart_dict = {}
+
+            # 因为接口设计为幂等的，所以直接对数据进行覆盖
+            cart_dict[sku_id] = {
+                'count':count,
+                'selected':selected
+            }
+
+            # 将字典转成bytes,再将bytes转成base64的bytes,最后将bytes转字符串
+            cookie_cart_str = base64.b64encode(pickle.dumps(cart_dict)).decode()
+
+            # 创建响应对象
+            response = Response(serializer.data)
+
+            # 响应结果并将购物车数据写入到cookie
+            response.set_cookie('cart', cookie_cart_str)
+            return response
 
 
     def delete(self, request):
