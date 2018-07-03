@@ -7,6 +7,7 @@ import base64
 import pickle
 
 from . import serializers
+from goods.models import SKU
 # Create your views here.
 
 
@@ -104,8 +105,66 @@ class CartView(APIView):
             return response
 
     def get(self, request):
-        """查询"""
-        pass
+        """查询
+        """
+        # 判断用户是否登录
+        try:
+            user = request.user
+        except Exception:
+            user = None
+
+        if user is not None and user.is_authenticated:
+            # 用户已登录,操作redis
+            redis_conn = get_redis_connection('carts')
+            # 查询出所有的购物车数据
+            redis_cart = redis_conn.hgetall('cart_%s' % user.id)
+            # {
+            #     b'sku_id':b'count',
+            #     b'sku_id': b'count'
+            # }
+            cart_selected = redis_conn.smembers('selected_%s' % user.id)
+
+            # 统一查询之后的格式为cart_dict，方便后面的查询sku的操作
+            # {
+            #     sku_id10: {
+            #                   "count": 10, // 数量
+            #     "selected": True // 是否勾选
+            # },
+            # sku_id20: {
+            #     "count": 20,
+            #     "selected": False
+            # },
+            # ...
+            # }
+            cart_dict = {}
+            for sku_id, count in redis_cart.items():
+                cart_dict[int(sku_id)] = {
+                    'count':int(count),
+                    'selected':sku_id in cart_selected
+                }
+        else:
+            # 用户未登录,操作cookie
+            cart_str = request.COOKIES.get('cart')
+            # 判断用户是否在cookie中有购物车数据
+            if cart_str:
+                # 将购物车字符串数据转成字典
+                cart_dict = pickle.loads(base64.b64decode(cart_str.encode()))
+            else:
+                cart_dict = {}
+
+        # 遍历cart_dict，取出里面的所有的sku_id,用于查询出购物车数据对应的sku对象
+        sku_ids = cart_dict.keys()  # sku_ids = [10,20]
+        skus = SKU.objects.filter(id__in=sku_ids) # 这种写法避免便利了cart_dict字典
+
+        # 为了在序列化的时候可以带上count和selected
+        for sku in skus:
+            sku.count = cart_dict[sku.id]['count']
+            sku.selected = cart_dict[sku.id]['selected']
+
+        # 创建序列化器对象，进行序列化操作
+        serializer = serializers.CartSKUSerializer(skus, many=True)
+
+        return Response(serializer.data)
 
 
     def put(self, request):
