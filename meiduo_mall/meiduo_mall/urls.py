@@ -30,4 +30,6 @@ urlpatterns = [
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     # 商品
     url(r'^', include('goods.urls')),
+    # 购物车
+    url(r'^', include('carts.urls')),
 ]
