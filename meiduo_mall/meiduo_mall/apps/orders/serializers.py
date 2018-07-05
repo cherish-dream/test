@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.utils import timezone # 读取本项目中配置的市区的时间，datetime类型的
 from decimal import Decimal
+from django_redis import get_redis_connection
 
 from goods.models import SKU
 from .models import OrderInfo
@@ -75,8 +76,18 @@ class CommitOrderSerializer(serializers.ModelSerializer):
         )
 
         # 从redis读取购物车中被勾选的商品信息
+        redis_conn = get_redis_connection('carts')
+        # 读取全部的购物车数据 {b'1':b'10', b'2':b'20'}
+        redis_cart = redis_conn.hgetall('cart_%s' % user.id)
+        # 读取被勾选的购物车数据sku_id ; selected == [b'1']
+        selected = redis_conn.smembers('selected_%s' % user.id)
+        # 构造要支付的新的字典
+        carts = {}
+        for sku_id in selected:
+            # carts = {'1':'10'}
+            carts[int(sku_id)] = int(redis_cart[sku_id])
 
-        # 遍历购物车中被勾选的商品信息
+        # 遍历购物车中被勾选的商品信息 ：carts是购物车中被勾选的商品
             # 获取sku对象
 
             # 判断库存 
