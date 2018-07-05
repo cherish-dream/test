@@ -73,6 +73,8 @@ class OrderGoods(BaseModel):
     order = models.ForeignKey(OrderInfo, related_name='skus', on_delete=models.CASCADE, verbose_name="订单")
     sku = models.ForeignKey(SKU, on_delete=models.PROTECT, verbose_name="订单商品")
     count = models.IntegerField(default=1, verbose_name="数量")
+    # max_digits ：总位数，包含小数位数。decimal_places ：保留几位小数
+    # 12345678.12
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="单价")
     comment = models.TextField(default="", verbose_name="评价信息")
     score = models.SmallIntegerField(choices=SCORE_CHOICES, default=5, verbose_name='满意度评分')

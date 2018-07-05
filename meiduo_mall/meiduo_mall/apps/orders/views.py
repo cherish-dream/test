@@ -38,6 +38,9 @@ class OrderSettlementView(APIView):
             sku.count = cart[sku.id]
 
         # 运费
+        # float 1.23 ==> 123 * 10 ^ -2 (123乘以10的负二次方)  1.29999999
+        # Decimal()   1.23  ==> 1     23   1.23
+
         freight = Decimal('10.00')
 
         serializer = serializers.OrderSettlementSerializer({'freight': freight, 'skus': skus})
