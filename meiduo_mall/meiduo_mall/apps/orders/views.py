@@ -4,6 +4,7 @@ from rest_framework.permissions import IsAuthenticated
 from django_redis import get_redis_connection
 from decimal import Decimal
 from rest_framework.response import Response
+from rest_framework.generics import CreateAPIView
 
 from goods.models import SKU
 from . import serializers
@@ -41,3 +42,12 @@ class OrderSettlementView(APIView):
 
         serializer = serializers.OrderSettlementSerializer({'freight': freight, 'skus': skus})
         return Response(serializer.data)
+
+
+class CommitOrderView(CreateAPIView):
+    """提交订单："""
+
+    # 指定权限
+    permission_classes = [IsAuthenticated]
+    # 指定序列化器
+    serializer_class = serializers.CommitOrderSerializer
