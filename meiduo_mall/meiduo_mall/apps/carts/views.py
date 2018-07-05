@@ -227,4 +227,70 @@ class CartView(APIView):
 
     def delete(self, request):
         """删除"""
-        pass
+
+        # 使用序列化器校验参数
+        serializer = serializers.CartDeleteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # 读取校验之后的参数
+        sku_id = serializer.validated_data.get('sku_id')
+
+        # 判断用户是否登录
+        try:
+            user = request.user
+        except Exception:
+            user = None
+
+        if user is not None and user.is_authenticated:
+            # 用户已登录,操作redis
+            redis_conn = get_redis_connection('carts')
+            # 管道
+            pl = redis_conn.pipeline()
+            # 删除sku_id对应的记录
+            pl.hdel('cart_%s' % user.id, sku_id)
+            # 删除匹配的是否勾选
+            pl.srem('selected_%s' % user.id, sku_id)
+            # 执行
+            pl.execute()
+            # 响应：204
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        else:
+            # 用户未登录,操作cookie
+            cart_str = request.COOKIES.get('cart')
+            # 判断用户是否在cookie中有购物车数据
+            if cart_str:
+                # 将购物车字符串数据转成字典
+                cart_dict = pickle.loads(base64.b64decode(cart_str.encode()))
+            else:
+                cart_dict = {}
+
+            # 创建响应对象
+            response = Response(status=status.HTTP_204_NO_CONTENT)
+
+            if sku_id in cart_dict:
+                del cart_dict[sku_id]
+
+                # 将字典转成bytes,再将bytes转成base64的bytes,最后将bytes转字符串
+                cookie_cart_str = base64.b64encode(pickle.dumps(cart_dict)).decode()
+
+                # 响应结果并将购物车数据写入到cookie
+                response.set_cookie('cart', cookie_cart_str)
+
+            return response
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -229,7 +229,8 @@ LOGGING = {
         'django': {  # 定义了一个名为django的日志器
             'handlers': ['console', 'file'],
             'propagate': True,
-            'level':'DEBUG' # 指定最低的日志等级
+            # 'level':'DEBUG' # 指定最低的日志等级
+            'level':'INFO', # 避免影响站点的超级管理员的创建
         },
     }
 }
