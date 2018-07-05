@@ -48,4 +48,27 @@ class CommitOrderSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """提交订单时，保存订单数据（OrderInfo）和订单商品数据(OrderGoods)"""
 
-        return ''
+        # 获取当前保存订单时需要的信息
+
+        # 保存订单基本信息 OrderInfo
+
+        # 从redis读取购物车中被勾选的商品信息
+
+        # 遍历购物车中被勾选的商品信息
+            # 获取sku对象
+
+            # 判断库存 
+
+            # 减少库存，增加销量 SKU 
+
+            # 修改SPU销量
+
+            # 保存订单商品信息 OrderGoods
+
+            # 累加计算总数量和总价
+
+        # 最后加入邮费和保存订单信息
+
+        # 清除购物车中已结算的商品
+
+        pass
