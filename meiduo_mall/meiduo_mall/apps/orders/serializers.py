@@ -4,7 +4,7 @@ from decimal import Decimal
 from django_redis import get_redis_connection
 
 from goods.models import SKU
-from .models import OrderInfo
+from .models import OrderInfo,OrderGoods
 
 
 class CartSKUSerializer(serializers.ModelSerializer):
@@ -87,21 +87,43 @@ class CommitOrderSerializer(serializers.ModelSerializer):
             # carts = {'1':'10'}
             carts[int(sku_id)] = int(redis_cart[sku_id])
 
+        # 读取出被勾选的商品的sku_id列表
+        sku_ids = carts.keys()
         # 遍历购物车中被勾选的商品信息 ：carts是购物车中被勾选的商品
+        for sku_id in sku_ids:
             # 获取sku对象
+            sku = SKU.objects.get(id=sku_id)
 
+            sku_count = carts[sku_id]
             # 判断库存 
+            if sku_count > sku.stock:
+                raise serializers.ValidationError('库存不足')
 
             # 减少库存，增加销量 SKU 
+            sku.stock -= sku_count
+            sku.sales += sku_count
+            sku.save()
 
             # 修改SPU销量
+            sku.goods.sales += sku_count
+            sku.goods.save()
 
             # 保存订单商品信息 OrderGoods
+            OrderGoods.objects.create(
+                order=order,
+                sku = sku,
+                count = sku_count,
+                price = sku.price
+            )
 
             # 累加计算总数量和总价
+            order.total_count += sku_count
+            order.total_amount += (sku.price * sku_count)
 
         # 最后加入邮费和保存订单信息
+        order.total_amount += order.freight
+        order.save()
 
-        # 清除购物车中已结算的商品
+        # 清除购物车中已结算的商品(待续)
 
-        pass
+        return order
