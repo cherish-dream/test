@@ -9,6 +9,7 @@ from .utils import OAuthQQ
 from .models import OAuthQQUser
 from .exceptions import QQAPIException
 from . import serializers
+from carts.utils import merge_cart_cookie_to_redis
 # Create your views here.
 
 
@@ -57,11 +58,18 @@ class QQAuthUserView(GenericAPIView):
             payload = jwt_payload_handler(user)
             token = jwt_encode_handler(payload)
 
-            return Response({
+            # 先创建响应
+            response = Response({
                 'token': token,
                 'user_id': user.id,
                 'username': user.username
             })
+
+            response = merge_cart_cookie_to_redis(request=request, response=response, user=user)
+
+            # 响应结果
+            return response
+
 
     def post(self, request):
         """绑定用户到openid"""
@@ -81,11 +89,17 @@ class QQAuthUserView(GenericAPIView):
         payload = jwt_payload_handler(user)
         token = jwt_encode_handler(payload)
 
-        return Response({
-            'token':token,
-            'user_id':user.id,
-            'username':user.username
+        # 先创建响应
+        response = Response({
+            'token': token,
+            'user_id': user.id,
+            'username': user.username
         })
+
+        response = merge_cart_cookie_to_redis(request=request, response=response, user=user)
+
+        # 响应结果
+        return response
 
 
 #  url(r'^qq/authorization/$', views.QQAuthURLView.as_view()),

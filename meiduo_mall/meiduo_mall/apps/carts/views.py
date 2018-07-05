@@ -11,6 +11,58 @@ from goods.models import SKU
 # Create your views here.
 
 
+class CartSelectAllView(APIView):
+    """
+    购物车全选
+    """
+    def perform_authentication(self, request):
+        """
+        重写父类的用户验证方法，不在进入视图前就检查JWT
+        """
+        pass
+
+    def put(self, request):
+        serializer = serializers.CartSelectAllSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        selected = serializer.validated_data['selected']
+
+        try:
+            user = request.user
+        except Exception:
+            # 验证失败，用户未登录
+            user = None
+
+        if user is not None and user.is_authenticated:
+            # 用户已登录，在redis中保存
+            redis_conn = get_redis_connection('carts')
+            cart = redis_conn.hgetall('cart_%s' % user.id)
+            sku_id_list = cart.keys()
+
+            if selected:
+                # 全选
+                redis_conn.sadd('selected_%s' % user.id, *sku_id_list)
+            else:
+                # 取消全选
+                redis_conn.srem('selected_%s' % user.id, *sku_id_list)
+            return Response({'message': 'OK'})
+        else:
+            # cookie
+            cart = request.COOKIES.get('cart')
+
+            response = Response({'message': 'OK'})
+
+            if cart is not None:
+                cart = pickle.loads(base64.b64decode(cart.encode()))
+                for sku_id in cart:
+                    cart[sku_id]['selected'] = selected
+                cookie_cart = base64.b64encode(pickle.dumps(cart)).decode()
+                # 设置购物车的cookie
+                # 需要设置有效期，否则是临时cookie
+                response.set_cookie('cart', cookie_cart)
+
+            return response
+
+
 class CartView(APIView):
     """购物车后端：增删改查"""
 

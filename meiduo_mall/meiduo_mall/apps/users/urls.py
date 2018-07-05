@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from rest_framework_jwt.views import obtain_jwt_token
+from rest_framework_jwt.views import obtain_jwt_token, ObtainJSONWebToken
 from rest_framework import routers
 
 from . import views
@@ -12,7 +12,10 @@ urlpatterns = [
     # 注册
     url(r'^users/$', views.UserView.as_view()),
     # JWT辅助登录
-    url(r'^authorizations/$', obtain_jwt_token),
+    # url(r'^authorizations/$', obtain_jwt_token),
+    # url(r'^authorizations/$', ObtainJSONWebToken.as_view()),
+    url(r'^authorizations/$', views.UserAuthorizeView.as_view()),
+
     # 获取登录用户的详情信息
     url(r'^user/$', views.UserDetailView.as_view()),
     # 帮顶设置邮件的路由

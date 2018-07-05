@@ -8,12 +8,55 @@ from rest_framework import status, mixins
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from django_redis import get_redis_connection
+from rest_framework_jwt.views import ObtainJSONWebToken
 
 from . import serializers
 from . import constants
 from goods.models import SKU
 from goods.serializers import SKUSerializer
+from carts.utils import merge_cart_cookie_to_redis
 # Create your views here.
+
+
+class UserAuthorizeView(ObtainJSONWebToken):
+    """重写JWT的登录视图，实现调用合并购物车的方法"""
+
+    def post(self, request, *args, **kwargs):
+        """重写JWT处理登录的请求方法：在保留JWT自己的逻辑基基础之上，增加自己的购物车合并的逻辑"""
+
+        # 为了保留本身的登录业务逻辑，需要重写父类的post方法
+        response = super(UserAuthorizeView, self).post(request, *args, **kwargs)
+
+        # 使用父类的校验用户的逻辑，得到校验后的用户细腻
+        serializer = self.get_serializer(data=request.data)
+        if serializer.is_valid():
+            user = serializer.object.get('user') or request.user
+
+            # 调用自己的购物车合并的逻辑
+            response = merge_cart_cookie_to_redis(request=request, response=response, user=user)
+
+        # 响应结果
+        return response
+
+
+        # 以下是父类的post方法的源代码
+        # serializer = self.get_serializer(data=request.data)
+        #
+        # if serializer.is_valid():
+        #     user = serializer.object.get('user') or request.user
+        #     token = serializer.object.get('token')
+        #     response_data = jwt_response_payload_handler(token, user, request)
+        #     response = Response(response_data)
+        #     if api_settings.JWT_AUTH_COOKIE:
+        #         expiration = (datetime.utcnow() +
+        #                       api_settings.JWT_EXPIRATION_DELTA)
+        #         response.set_cookie(api_settings.JWT_AUTH_COOKIE,
+        #                             token,
+        #                             expires=expiration,
+        #                             httponly=True)
+        #     return response
+        #
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # /browse_histories/
