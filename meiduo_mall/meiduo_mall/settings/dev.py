@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'areas.apps.AreasConfig', # 省市区
     'contents.apps.ContentsConfig', # 主页广告内容
     'goods.apps.GoodsConfig', # 商品
+    'orders.apps.OrdersConfig', # 订单
 
 ]
 
