@@ -125,8 +125,8 @@ class CommitOrderSerializer(serializers.ModelSerializer):
                             raise serializers.ValidationError('库存不足')
 
                         # 模拟网络延迟 # 15 --> 14
-                        import time
-                        time.sleep(5)
+                        # import time
+                        # time.sleep(5)
 
                         # 减少库存，增加销量 SKU 
                         # sku.stock -= sku_count
@@ -176,6 +176,10 @@ class CommitOrderSerializer(serializers.ModelSerializer):
             # 如果成功就提交
             transaction.savepoint_commit(save_id)
 
-            # 清除购物车中已结算的商品(待续)
+            # 清除购物车中已结算的商品
+            pl = redis_conn.pipeline()
+            pl.hdel('cart_%s' % user.id, *sku_ids)
+            pl.srem('selected_%s' % user.id, *sku_ids)
+            pl.execute()
 
             return order
