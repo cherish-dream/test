@@ -34,4 +34,6 @@ urlpatterns = [
     url(r'^', include('carts.urls')),
     # 订单
     url(r'^', include('orders.urls')),
+    # 支付
+    url(r'^', include('payment.urls'))
 ]
