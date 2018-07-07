@@ -54,6 +54,10 @@ INSTALLED_APPS = [
     'ckeditor_uploader',  # 富文本编辑器上传图片模块
     'django_crontab',  # 定时任务
     'haystack', # 对接Elasticsearch
+    # 以下三个应用是Xadmin的
+    'xadmin',
+    'crispy_forms',
+    'reversion',
 
     'users.apps.UsersConfig', # 注册用户模块应用
     'verifications.apps.VerificationsConfig', # 验证

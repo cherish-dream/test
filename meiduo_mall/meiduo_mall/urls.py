@@ -16,8 +16,12 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
+import xadmin
+
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
+    # url(r'^admin/', admin.site.urls),
+    url(r'xadmin/', include(xadmin.site.urls)),
+
     # 验证码
     url(r'^', include('verifications.urls')),
     # 用户
