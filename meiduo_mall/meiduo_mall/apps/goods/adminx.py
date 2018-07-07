@@ -20,6 +20,12 @@ class GlobalSettings(object):
 
 xadmin.site.register(views.CommAdminView, GlobalSettings)
 
+# class SKUAdmin(admin.ModelAdmin): # admin
+class SKUAdmin(object): # Xadmin
+    """自定义编辑界面的样式"""
+    model_icon = 'fa fa-gift' # 指定图标
+    list_display = ['id', 'name', 'price', 'stock', 'sales', 'comments']
+
 
 xadmin.site.register(models.GoodsCategory)
 xadmin.site.register(models.GoodsChannel)
@@ -27,6 +33,6 @@ xadmin.site.register(models.Goods)
 xadmin.site.register(models.Brand)
 xadmin.site.register(models.GoodsSpecification)
 xadmin.site.register(models.SpecificationOption)
-xadmin.site.register(models.SKU)
+xadmin.site.register(models.SKU, SKUAdmin)
 xadmin.site.register(models.SKUSpecification)
 xadmin.site.register(models.SKUImage)
