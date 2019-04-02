@@ -6,7 +6,7 @@ class OAuthQQUser(BaseModel):
     """
     QQ登录用户数据:用于记录那个QQ用户绑定了美多商城的那个用户的
     """
-    user = models.ForeignKey('users.User', on_delete=models.CASCADE, verbose_name='用户')
+    user = models.ForeignKey('users.User', null=True, on_delete=models.CASCADE, verbose_name='用户')
     openid = models.CharField(max_length=64, verbose_name='openid', db_index=True)
 
     class Meta:

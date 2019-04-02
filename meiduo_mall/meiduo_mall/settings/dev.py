@@ -58,7 +58,7 @@ INSTALLED_APPS = [
     'xadmin',
     'crispy_forms',
     'reversion',
-
+    #
     'users.apps.UsersConfig', # 注册用户模块应用
     'verifications.apps.VerificationsConfig', # 验证
     'oauth.apps.OauthConfig', # QQ登录
@@ -109,7 +109,7 @@ WSGI_APPLICATION = 'meiduo_mall.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'HOST': '192.168.103.132',  # 数据库主机
+        'HOST': '127.0.0.1',  # 数据库主机
         'PORT': 3306,  # 数据库端口
         'USER': 'meiduo_01',  # 数据库用户名
         'PASSWORD': 'meiduo_01',  # 数据库用户密码
@@ -193,6 +193,9 @@ USE_L10N = True
 USE_TZ = True
 
 
+# 指定本项目用户认证模型类是谁
+AUTH_USER_MODEL = 'users.User'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.11/howto/static-files/
 
@@ -266,9 +269,6 @@ JWT_AUTH = {
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.jwt_response_payload_handler',
 }
 
-
-# 指定本项目用户认证模型类是谁
-AUTH_USER_MODEL = 'users.User'
 
 
 # 配置用户登录认证后端

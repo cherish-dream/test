@@ -6,8 +6,8 @@ from django.db import models
 
 from django.db import models
 from meiduo_mall.utils.models import BaseModel
-from users.models import User, Address
-from goods.models import SKU
+# from users.models import User, Address
+# from goods.models import SKU
 
 # Create your models here.
 
@@ -44,8 +44,8 @@ class OrderInfo(BaseModel):
     )
 
     order_id = models.CharField(max_length=64, primary_key=True, verbose_name="订单号")
-    user = models.ForeignKey(User, on_delete=models.PROTECT, verbose_name="下单用户")
-    address = models.ForeignKey(Address, on_delete=models.PROTECT, verbose_name="收获地址")
+    user = models.ForeignKey('users.User', on_delete=models.PROTECT, verbose_name="下单用户")
+    address = models.ForeignKey('users.Address', on_delete=models.PROTECT, verbose_name="收获地址")
     total_count = models.IntegerField(default=1, verbose_name="商品总数")
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="商品总金额")
     freight = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="运费")
@@ -70,8 +70,8 @@ class OrderGoods(BaseModel):
         (4, '80分'),
         (5, '100分'),
     )
-    order = models.ForeignKey(OrderInfo, related_name='skus', on_delete=models.CASCADE, verbose_name="订单")
-    sku = models.ForeignKey(SKU, on_delete=models.PROTECT, verbose_name="订单商品")
+    order = models.ForeignKey('OrderInfo', related_name='skus', on_delete=models.CASCADE, verbose_name="订单")
+    sku = models.ForeignKey('goods.SKU', on_delete=models.PROTECT, verbose_name="订单商品")
     count = models.IntegerField(default=1, verbose_name="数量")
     # max_digits ：总位数，包含小数位数。decimal_places ：保留几位小数
     # 12345678.12

@@ -22,7 +22,7 @@ class UserAuthorizeView(ObtainJSONWebToken):
     """重写JWT的登录视图，实现调用合并购物车的方法"""
 
     def post(self, request, *args, **kwargs):
-        """重写JWT处理登录的请求方法：在保留JWT自己的逻辑基基础之上，增加自己的购物车合并的逻辑"""
+        """重写JWT处理登录的请求方法：在保留JWT自己的逻辑基础之上，增加自己的购物车合并的逻辑"""
 
         # 为了保留本身的登录业务逻辑，需要重写父类的post方法
         response = super(UserAuthorizeView, self).post(request, *args, **kwargs)
